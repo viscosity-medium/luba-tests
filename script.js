@@ -123,10 +123,6 @@ const dragFunction = (e) => {
 
 const zoomFunction = (e, addParameter, modalSide, textItem) => {
     let scaleFactor = graphicElement.style.transform.split(/\(|,/)[1] || 1;
-    const zoomCoordinates = {
-        x: e.clientX,
-        y: e.clientY
-    };
     setTimeout(()=>{
         modalSide === "left" ? (
             modalLeft.classList.remove("closed_left"),
@@ -144,6 +140,22 @@ const zoomFunction = (e, addParameter, modalSide, textItem) => {
             graphicElement.style.transform = `scale(${scaleFactor},${scaleFactor})`;
             defineCoordinatesFunction(e, 1, addParameter);
             if(scaleFactor >= scaleMax){
+                clearInterval(interval);
+            }
+        },10);
+    }
+    return null
+}
+
+const zoomOutFunction = (e, addParameter, modalSide, textItem) => {
+    let scaleFactor = graphicElement.style.transform.split(/\(|,/)[1] || 1;
+    if(Math.floor(+scaleFactor) >=  Math.floor(1)){
+        const interval = setInterval(()=>{
+            scaleFactor = (Math.ceil(scaleFactor * 100) / 100) - scalePitch;
+            graphicElement.style.transform = `scale(${scaleFactor},${scaleFactor})`;
+            if(scaleFactor <= Math.floor(1)){
+                graphicElement.style.transform = `scale(${1},${1})`;
+                scale = 1;
                 clearInterval(interval);
             }
         },10);
@@ -204,12 +216,10 @@ graphicElement.addEventListener('mousemove', (e)=>{
 });
 
 divMain.addEventListener('touchmove', (e) => {
-    console.log(e);
     dragFunction(e);
 });
 
 divMain.addEventListener('wheel', (e) => {
-    console.log(e)
     e.preventDefault();
     defineCoordinatesFunction(e, 1);
 });
@@ -268,11 +278,17 @@ militaryChannels.addEventListener('click', (e) => {
 });
 
 modalLeft.addEventListener('click', (e) => {
+    if(window.innerWidth <= 550) {
+        zoomOutFunction();
+    }
     modalLeft.classList.remove("opened_left"),
-    modalLeft.classList.add("closed_left")
+    modalLeft.classList.add("closed_left");
 });
 
 modalRight.addEventListener('click', (e) => {
+    if(window.innerWidth <= 550) {
+        zoomOutFunction();
+    }
     modalRight.classList.remove("opened_right"),
     modalRight.classList.add("closed_right")
 });
